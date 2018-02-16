@@ -1,4 +1,0 @@
-sceneSetups:
-- path: Assets/Tib/Scenes/scene1.unity
-  isLoaded: 1
-  isActive: 1
