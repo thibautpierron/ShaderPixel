@@ -125,7 +125,7 @@ Shader "Unlit/mandel"
 				return unionSDF(differenceSDF(b, a), c);
 			}
 
-			float3 sphereNormal(float3 p) {
+			float3 normal(float3 p) {
 				const float eps = 0.01;
 				
 				return normalize( float3(
@@ -152,7 +152,7 @@ Shader "Unlit/mandel"
 			}
 
 			fixed4 renderSurface(float3 p) {
-				float3 n = sphereNormal(p);
+				float3 n = normal(p);
 				return simpleLambert(n);
 			}
 
@@ -161,7 +161,7 @@ Shader "Unlit/mandel"
 				for (int i = 0; i < 64; i++)
 				{
 					float distance = map(position);
-					if (distance < 0.01) {
+					if (distance < 0.0005) {
 						float s = softshadow(position, _WorldSpaceLightPos0.xyz, 0.02, 2.5);
 						fixed4 c = renderSurface(position) * s;
 						// fixed4 c = renderSurface(position);
