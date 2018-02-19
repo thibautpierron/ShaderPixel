@@ -74,6 +74,10 @@ Shader "Unlit/mandel"
 				return c;
 			}
 
+			float sdf_plane(float3 p, float3 n, float distanceFromOrigin) {
+				return dot(p, n) + distanceFromOrigin;
+			}
+
 			float sdf_sphere(float3 p, float3 c, float r) {
 				return distance(p, c) - r;
 			}
@@ -114,10 +118,11 @@ Shader "Unlit/mandel"
 
 			float map (float3 p) {
 				// sdf_sphere(p, - float3(1.5, 0, 0), 2),
-				float a = sdf_sphere(p, + float3(0, 0, 0), 1);
+				float a = sdf_sphere(p, + float3(0, 0, 0), 1.1);
 				float b = sdf_box(p, float3(0, 0, 0), float3(1.8, 1.8, 1.8));
+				float c = sdf_plane(p, float3(0, 1, 0), 1.2);
 
-				return differenceSDF(a, b);
+				return unionSDF(differenceSDF(b, a), c);
 			}
 
 			float3 sphereNormal(float3 p) {
@@ -131,6 +136,21 @@ Shader "Unlit/mandel"
 					);
 			}
 
+			float softshadow( float3 ro, float3 rd, float mint, float maxt)
+			{
+				float res = 1.0;
+				float t = mint;
+				for (int i = 0; i < 16; i++)
+				{
+					float h = map(ro + rd * t);
+					res = min(res, 8.0 * h / t);
+					t += clamp(h, 0.02, 0.1);
+					if (h < 0.001 || t > maxt)
+						break;
+				}
+				return clamp(res, 0.0, 1.0);
+			}
+
 			fixed4 renderSurface(float3 p) {
 				float3 n = sphereNormal(p);
 				return simpleLambert(n);
@@ -138,11 +158,16 @@ Shader "Unlit/mandel"
 
 			fixed4 raymarch(float3 position, float3 direction)
 			{
-				for (int i = 0; i < 32; i++)
+				for (int i = 0; i < 64; i++)
 				{
 					float distance = map(position);
-					if (distance < 0.01)
-						return renderSurface(position);
+					if (distance < 0.01) {
+						float s = softshadow(position, _WorldSpaceLightPos0.xyz, 0.02, 2.5);
+						fixed4 c = renderSurface(position) * s;
+						// fixed4 c = renderSurface(position);
+						c.a = 1;
+						return c;
+					}
 					position += distance * direction;
 				}
 				return fixed4(1,1,1,0.5);
