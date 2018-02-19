@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 
-Shader "Unlit/tuto"
+Shader "Unlit/mandel"
 {
 	Properties
 	{
@@ -100,13 +100,24 @@ Shader "Unlit/tuto"
 				return d;
 			}
 
-			float map (float3 p) {
-				// return max(
-				// 	sdf_sphere(p, - float3(1.5, 0, 0), 2),
-				// 	sdf_sphere(p, + float3(1.5, 0, 0), 2)
-				// );
+			float intersectSDF(float a, float b) {
+				return max(a, b);
+			}
 
-				return sdf_box(p, float3(0, 0, 0), float3(1, 1, 1));
+			float unionSDF(float a, float b) {
+				return min(a, b);
+			}
+
+			float differenceSDF(float a, float b) {
+				return max(a, -b);
+			}
+
+			float map (float3 p) {
+				// sdf_sphere(p, - float3(1.5, 0, 0), 2),
+				float a = sdf_sphere(p, + float3(0, 0, 0), 1);
+				float b = sdf_box(p, float3(0, 0, 0), float3(1.8, 1.8, 1.8));
+
+				return differenceSDF(a, b);
 			}
 
 			float3 sphereNormal(float3 p) {

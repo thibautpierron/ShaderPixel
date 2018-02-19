@@ -25,7 +25,7 @@ Material:
     m_Floats:
     - _Centre: 2.05
     - _Gloss: 1
-    - _Radius: 0.78
+    - _Radius: -0.07
     - _Specular: 2.98
     m_Colors:
     - _Color: {r: 0.057850357, g: 0.06287731, b: 0.78676474, a: 1}
