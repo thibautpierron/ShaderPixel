@@ -10,7 +10,8 @@ Shader "Unlit/mandel"
 		_SeaFreq ("Sea Frequency", float) = 0.4
 		_SeaBase ("Sea Base", vector) = (0.1,0.19,0.22)
 		_SeaColor("Sea Color", Color) = (0.1,0.19,0.22, 1.0)
-		// vec3 SEA_BASE = vec3(0.1,0.19,0.22);
+		_IterLow("Low Res Iteration nbr", int) = 3
+		_IterHigh("High Res Iteration nbr", int) = 5
 	}
 	SubShader
 	{
@@ -51,6 +52,8 @@ Shader "Unlit/mandel"
 			float _SeaFreq;
 			float3 _SeaBase;
 			fixed4 _SeaColor;
+			int _IterLow;
+			int _IterHigh;
 
 			float3 viewDirection;
 
@@ -115,9 +118,9 @@ Shader "Unlit/mandel"
 
 			float3 getNormal(float3 p, float eps) {
 				float3 n;
-				n.y = map(p, 5);
-				n.x = map(float3(p.x + eps, p.y, p.z), 5) - n.y;
-				n.z = map(float3(p.x, p.y, p.z + eps), 5) - n.y;
+				n.y = map(p, _IterHigh);
+				n.x = map(float3(p.x + eps, p.y, p.z), _IterHigh) - n.y;
+				n.z = map(float3(p.x, p.y, p.z + eps), _IterHigh) - n.y;
 
 				n.y = eps; 
 				return normalize(n);
@@ -132,11 +135,11 @@ Shader "Unlit/mandel"
 				float tm = 0.0;
 				float tx = 1000.0;
 
-				float hx = map(ori + dir * tx, 3);
+				float hx = map(ori + dir * tx, _IterLow);
 
 				if (hx > 0.0) return tx;   
 
-				float hm = map(ori + dir * tm, 3); 
+				float hm = map(ori + dir * tm, _IterLow); 
 			
 				float tmid = 0.0;
 				float3 p;
@@ -144,7 +147,7 @@ Shader "Unlit/mandel"
 					tmid = lerp(tm, tx, hm / (hm - hx));
 					p = ori + dir * tmid; 
 							
-					float hmid = map(p, 3);
+					float hmid = map(p, _IterLow);
 
 					if(hmid < 0.0) {
 						tx = tmid;
@@ -167,19 +170,28 @@ Shader "Unlit/mandel"
 				return pow(max(dot(reflect(e, n), l), 0.0),s) * nrm;
 			}
 
+			float3 getSkyColor(float3 e) {
+				e.y = max(e.y, 0.0);
+				float3 ret;
+				ret.x = pow(1.0 - e.y, 2.0);
+				ret.y = 1.0 - e.y;
+				ret.z = 0.6 + (1.0 - e.y) * 0.4;
+				return ret;
+			}
+
 			float3 getSeaColor(float3 p, float3 n, float3 l, float3 eye, float3 dist) {  
-				float fresnel = 1.0 - max(dot(n,-eye),0.0);
+				float fresnel = 1.0 - max(dot(n, -eye),0.0);
 				fresnel = pow(fresnel,3.0) * 0.65;
 					
 				// bteitler: Bounce eye ray off ocean towards sky, and get the color of the sky
-				// vec3 reflected = getSkyColor(reflect(eye,n));    
+				float3 reflected = getSkyColor(reflect(eye,n));    
 				
 				// bteitler: refraction effect based on angle between light surface normal
-				float3 refracted = float3(0.1,0.19,0.22) + diffuse(n,l,80.0) * _SeaColor * 0.12; 
+				float3 refracted = float3(0.1, 0.19, 0.22) + diffuse(n, l, 80.0) * _SeaColor * 0.12; 
 				
 				// bteitler: blend the refracted color with the reflected color based on our fresnel term
-				// vec3 color = mix(refracted,reflected,fresnel);
-				float3 color = lerp(refracted, fresnel, 0.5);
+				float3 color = lerp(refracted, reflected, fresnel);
+				// float3 color = lerp(refracted, fresnel, 0.5);
 				
 				// bteitler: Apply a distance based attenuation factor which is stronger
 				// at peaks
@@ -200,12 +212,16 @@ Shader "Unlit/mandel"
 				float3 p =  heightMapTracing(worldPosition, viewDirection);
 				float dist = p - worldPosition;
 
-				float3 n = getNormal(p, dot(dist,dist) * 0.1 / _ScreenParams.x);
+				float3 n = getNormal(p, dot(dist,dist) * (0.1 / _ScreenParams.x));
 
-				fixed3 lightDir = _WorldSpaceLightPos0.xyz; 
+				// fixed3 lightDir = _WorldSpaceLightPos0.xyz;
+				fixed3 lightDir;
+				lightDir.x = - _WorldSpaceLightPos0.x;
+				lightDir.y = - _WorldSpaceLightPos0.y;
+				lightDir.z = - _WorldSpaceLightPos0.z;
              
 				// float3 color = lerp(
-				// 	fixed4(0, 0, 0, 0),
+				// 	getSkyColor(viewDirection),
 				// 	getSeaColor(p, n, lightDir, viewDirection, dist),
 				// 	pow(lerp(0.0, -0.05, viewDirection.y), 0.3) // bteitler: Can be thought of as "fog" that gets thicker in the distance
 				// );
@@ -243,19 +259,6 @@ Shader "Unlit/mandel"
 // float SEA_TIME;
 
 // mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
-
-// // math
-// // bteitler: Turn a vector of Euler angles into a rotation matrix
-// mat3 fromEuler(vec3 ang) {
-// 	vec2 a1 = vec2(sin(ang.x),cos(ang.x));
-//     vec2 a2 = vec2(sin(ang.y),cos(ang.y));
-//     vec2 a3 = vec2(sin(ang.z),cos(ang.z));
-//     mat3 m;
-//     m[0] = vec3(a1.y*a3.y+a1.x*a2.x*a3.x,a1.y*a2.x*a3.x+a3.y*a1.x,-a2.y*a3.x);
-// 	m[1] = vec3(-a2.y*a1.x,a1.y*a2.y,a2.x);
-// 	m[2] = vec3(a3.y*a1.x*a2.x+a1.y*a3.x,a1.x*a3.x-a1.y*a3.y*a2.x,a2.y*a3.y);
-// 	return m;
-// }
 
 // // bteitler: A 2D hash function for use in noise generation that returns range [0 .. 1].  You could
 // // use any hash function of choice, just needs to deterministic and return
