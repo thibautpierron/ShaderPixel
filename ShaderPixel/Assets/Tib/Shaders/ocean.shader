@@ -227,7 +227,7 @@ Shader "Unlit/mandel"
 				// );
 					
 				float3 color = getSeaColor(p, n, lightDir, viewDirection, dist);
-				return fixed4(color, 1.0);
+				return fixed4(color, 0.5);
 				// return fixed4(pow(color,float3(0.75)), 1.0);
 
 			}

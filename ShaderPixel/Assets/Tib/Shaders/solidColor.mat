@@ -6,8 +6,8 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: ocean
-  m_Shader: {fileID: 4800000, guid: b2ffbfbb92e0c4af7b8a44c0d03f6f4f, type: 3}
+  m_Name: solidColor
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -56,32 +56,21 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _BumpScale: 1
-    - _Centre: 0
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _Gloss: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _IterHigh: 5
-    - _IterLow: 3
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Radius: 0.5
-    - _SeaChoppy: 3.76
-    - _SeaFreq: -0.32
-    - _SeaHeight: 0.6
     - _SmoothnessTextureChannel: 0
-    - _Specular: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.7514196, g: 0.051470578, b: 1, a: 0.503}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _SeaBase: {r: 0.1, g: 0.19, b: 0.22, a: 1}
-    - _SeaColor: {r: 0.10400311, g: 0.13235295, b: 0.1002379, a: 1}
