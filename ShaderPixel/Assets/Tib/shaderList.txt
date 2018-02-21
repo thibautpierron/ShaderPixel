@@ -1,0 +1,24 @@
+
+TO_DO:
+
+    Une mandelbox avec de la lumière (ombres non obligatoires).
+
+    Un IFS.
+
+    Un autre objet translucide avec de la lumière et du fog volumétrique.
+
+    Un shader appliqué sur une surface évoquant "un autre monde" en 3D un peu comme un portail.
+
+    Un shader 2D de votre choix utilisant un renderbuffer.
+
+
+
+
+IN_PROGRESS:
+
+    Une fractale 3D de votre choix (autre que mandelbox) avec une lumière, de l’occlusion ambiante ainsi que des ombres.
+
+
+DONE:
+    un shader 3D (ou 4D) de votre choix.
+    Un objet translucide avec de la lumière non volumétrique sur sa surface ainsi que du spéculaire.

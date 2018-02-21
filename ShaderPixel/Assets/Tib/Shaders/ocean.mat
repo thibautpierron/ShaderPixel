@@ -71,9 +71,9 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _Radius: 0.5
-    - _SeaChoppy: 3.76
-    - _SeaFreq: -0.32
-    - _SeaHeight: 0.6
+    - _SeaChoppy: 0.14
+    - _SeaFreq: -0.29
+    - _SeaHeight: -5
     - _SmoothnessTextureChannel: 0
     - _Specular: 1
     - _SpecularHighlights: 1
@@ -84,4 +84,4 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SeaBase: {r: 0.1, g: 0.19, b: 0.22, a: 1}
-    - _SeaColor: {r: 0.10400311, g: 0.13235295, b: 0.1002379, a: 1}
+    - _SeaColor: {r: 0, g: 0, b: 0, a: 1}

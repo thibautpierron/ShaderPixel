@@ -1,12 +1,8 @@
-﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
-
-Shader "Unlit/MengerSponge"
+﻿Shader "PixelShader/MengerSponge"
 {
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
-		// _Centre ("Center", float) = 0.0
-		// _Radius ("Radius", float) = 0.5
 		_Color ("Color", Color) = (0.5, 0.5, 0.5, 1)
 		_Specular ("Specular", float) = 1.0
 		_Gloss ("Gloss", float) = 1.0

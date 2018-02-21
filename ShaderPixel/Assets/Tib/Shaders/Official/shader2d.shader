@@ -1,4 +1,4 @@
-﻿Shader "Unlit/shader2d"
+﻿Shader "PixelShader/shader2d"
 {
 	Properties
 	{
