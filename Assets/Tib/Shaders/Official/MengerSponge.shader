@@ -7,6 +7,7 @@
 		_Specular ("Specular", float) = 1.0
 		_Gloss ("Gloss", float) = 1.0
 		_Offset ("Offset", vector) = (0.0, 0.0, 0.0)
+		_Light ("Light", vector) = (0.0, 0.0, 0.0)
 	}
 	SubShader
 	{
@@ -45,6 +46,7 @@
 			float _Specular;
 			float _Gloss;
 			float3 _Offset;
+			float3 _Light;
 			float3 viewDirection;
 			
 			v2f vert (appdata v)
@@ -56,8 +58,9 @@
 			}
 
 			fixed4 simpleLambert(fixed3 normal) {
-				fixed3 lightDir = _WorldSpaceLightPos0.xyz;
-				fixed3 lightCol = _LightColor0.rgb;
+				fixed3 lightDir = _Light.xyz;
+				fixed3 lightCol = (1.0, 1.0, 1.0);
+				fixed3 ambient = (0.2, 0.2, 0.2);
 
 				fixed3 NdotL = max(dot(normal, lightDir), 0);
 
@@ -65,7 +68,7 @@
 				fixed specular = pow( dot(normal, h), _Specular) * _Gloss;
 
 				fixed4 c;
-				c.rgb = _Color * lightCol * NdotL + specular;
+				c.rgb = ambient + _Color * lightCol * NdotL + specular;
 				c.a = 1;
 				return c;
 			}
@@ -124,7 +127,7 @@
 					if (h < 0.001 || t > maxt)
 						break;
 				}
-				return clamp(res, 0.0, 1.0);
+				return clamp(res, 0.2, 1.0);
 			}
 
 			fixed4 renderSurface(float3 p) {
@@ -138,7 +141,7 @@
 				{
 					float distance = map(position);
 					if (distance < 0.0005) {
-						float s = softshadow(position, _WorldSpaceLightPos0.xyz, 0.02, 2.5);
+						float s = softshadow(position, _Light, 0.02, 2.5);
 						fixed4 c = renderSurface(position) * s;
 						c.a = 1;
 						return c;
