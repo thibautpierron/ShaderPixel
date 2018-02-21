@@ -7,6 +7,7 @@
 		_Specular ("Specular", float) = 1.0
 		_Gloss ("Gloss", float) = 1.0
 		_Offset ("Offset", vector) = (0.0, 0.0, 0.0)
+		_Light ("Light", vector) = (0.0, 0.0, 0.0)
 		_Alpha ("Alpha", Range(0, 1)) = 0.5
 	}
 	SubShader
@@ -47,6 +48,7 @@
 			float _Gloss;
 			float _Alpha;
 			float3 _Offset;
+			float3 _Light;
 			float3 viewDirection;
 			
 			v2f vert (appdata v)
@@ -58,7 +60,7 @@
 			}
 
 			fixed4 simpleLambert(fixed3 normal) {
-				fixed3 lightDir = _WorldSpaceLightPos0.xyz;
+				fixed3 lightDir = _Light.xyz;
 				fixed3 lightCol = _LightColor0.rgb;
 
 				fixed3 NdotL = max(dot(normal, lightDir), 0);
@@ -158,7 +160,7 @@
 				{
 					float distance = map(position);
 					if (distance < 0.0005) {
-						float s = softshadow(position, _WorldSpaceLightPos0.xyz, 0.02, 2.5);
+						float s = softshadow(position, _Light.xyz, 0.02, 2.5);
 						fixed4 c = renderSurface(position) * s;
 						c.a = _Alpha;
 						return c;
