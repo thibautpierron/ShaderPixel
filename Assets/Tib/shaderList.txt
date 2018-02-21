@@ -7,11 +7,7 @@ TO_DO:
 
     Un autre objet translucide avec de la lumière et du fog volumétrique.
 
-    Un shader appliqué sur une surface évoquant "un autre monde" en 3D un peu comme un portail.
-
     Un shader 2D de votre choix utilisant un renderbuffer.
-
-
 
 
 IN_PROGRESS:
@@ -22,3 +18,4 @@ IN_PROGRESS:
 DONE:
     un shader 3D (ou 4D) de votre choix.
     Un objet translucide avec de la lumière non volumétrique sur sa surface ainsi que du spéculaire.
+    Un shader appliqué sur une surface évoquant "un autre monde" en 3D un peu comme un portail.
