@@ -57,22 +57,6 @@
 				return o;
 			}
 
-			fixed4 simpleLambert(fixed3 normal) {
-				fixed3 lightDir = _Light.xyz;
-				fixed3 lightCol = (1.0, 1.0, 1.0);
-				fixed3 ambient = (0.2, 0.2, 0.2);
-
-				fixed3 NdotL = max(dot(normal, lightDir), 0);
-
-				fixed3 h = (lightDir - viewDirection) / 2;
-				fixed specular = pow( dot(normal, h), _Specular) * _Gloss;
-
-				fixed4 c;
-				c.rgb = ambient + _Color * lightCol * NdotL + specular;
-				c.a = 1;
-				return c;
-			}
-
 			float MengerSponge(float3 p){				
 				for(int n=0;n < 4;n++) {
 					p = abs(p);
@@ -104,6 +88,35 @@
 				return MengerSponge(p);
 			}
 
+			float calcAO( in float3 p, in float3 n ) {
+				float occ = 0.0;
+				float sca = 1.0;
+				for (int i = 0; i < 5; i++) {
+					float hr = 0.01 + 0.12 * float(i) / 4.0;
+					float3 aopos =  n * hr + p;
+					float dd = map(aopos).x;
+					occ += - (dd - hr) * sca;
+					sca *= 0.95;
+				}
+				return clamp( 1.0 - 3.0 * occ, 0.0, 1.0 );    
+			}
+
+			fixed4 simpleLambert(fixed3 normal) {
+				fixed3 lightDir = _Light.xyz;
+				fixed3 lightCol = _LightColor0.rgb;
+				fixed3 ambient = (0.2, 0.2, 0.2);
+
+				fixed3 NdotL = max(dot(normal, lightDir), 0);
+
+				fixed3 h = (lightDir - viewDirection) / 2;
+				fixed specular = pow( dot(normal, h), _Specular) * _Gloss;
+
+				fixed4 c;
+				c.rgb = ambient + _Color * lightCol * NdotL + specular;
+				c.a = 1;
+				return c;
+			}
+
 			float3 normal(float3 p) {
 				const float eps = 0.01;
 				
@@ -132,7 +145,8 @@
 
 			fixed4 renderSurface(float3 p) {
 				float3 n = normal(p);
-				return simpleLambert(n);
+				float occ = calcAO(p, n);
+				return simpleLambert(n) * occ;
 			}
 
 			fixed4 raymarch(float3 position, float3 direction)
