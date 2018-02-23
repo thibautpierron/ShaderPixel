@@ -17,3 +17,4 @@ DONE:
     Une fractale 3D de votre choix (autre que mandelbox) avec une lumière, de l’occlusion ambiante ainsi que des ombres.
     Un objet translucide avec de la lumière non volumétrique sur sa surface ainsi que du spéculaire.
     Un shader appliqué sur une surface évoquant "un autre monde" en 3D un peu comme un portail.
+    (BONUS) shader animé par un son.
