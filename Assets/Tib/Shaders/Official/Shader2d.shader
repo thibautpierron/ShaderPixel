@@ -3,6 +3,10 @@
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
+		_R1 ("random num1", float) = 0
+		_R2 ("random num2", float) = 0
+		_R3 ("random num3", float) = 0
+		_R4 ("random num4", float) = 0
 	}
 	SubShader
 	{
@@ -31,6 +35,10 @@
 
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
+			float _R1;
+			float _R2;
+			float _R3;
+			float _R4;
 			
 			v2f vert (appdata v)
 			{
@@ -40,43 +48,22 @@
 				return o;
 			}
 			
-			fixed4 frag (v2f i) : SV_Target
-			{
-				float3 v1 = _SinTime * 20 * i.uv.x;
-				float3 v2 = _CosTime * 20 * i.uv.y;
-				float3 v3 = _SinTime * 20 * (i.uv.x + i.uv.y);
-				float3 v4 = _CosTime * 20 * (length(i.uv) + 1.7);
-				float3 v = v1 + v2 + v3 + v4;
-				
+			fixed4 frag (v2f i) : SV_Target {		
 				float3 col;
-				
-				// if(i.uv.x < 1./10.)
-				// 	col = v1;
-				// else if(i.uv.x < 2./10.)
-				// 	col = v2;
-				// else if(i.uv.x < 3./10.)
-				// 	col = v3;
-				// else if(i.uv.x < 4./10.)
-				// 	col = v4;
-				// else if(i.uv.x < 5./10.)
-				// 	col = v;	
-				// else if(i.uv.x < 6./10.)
-				// 	col = sin(2.0 * v);
-				// else if(i.uv.x < 10./10.) {
-					// v *= 1.0;
-					col.x = sin(v);
-					col.y = sin(v + 0.5 * 3.14);
-					col.z = sin(v + 1.0 * 3.14);
-					// col = float3(sin(v), sin(v + 0.5 * 3.14), sin(v + 1.0 * 3.14));
-				// }	
-				
-				// col = 0.5 + 0.5 * col;
+				if(i.uv.x < 1./4. && i.uv.y < _R1 * 2)
+					col = _CosTime;
+				else if(i.uv.x < 2./4. && i.uv.y < _R2 * 2)
+					col = _CosTime * 0.2;
+				else if(i.uv.x < 3./4. && i.uv.y < _R3 * 2)
+					col = _CosTime * 0.4;
+				else if(i.uv.x < 4./4. && i.uv.y < _R4 * 10)
+					col = _CosTime * 0.6;
+				else
+					col = _SinTime * i.uv.y;
+
 				fixed4 ret;
 				ret.rgb = col;
 				ret.a = 1;
-				// ret.x = col.x;
-				// ret.y = col.y;
-				// ret.z = col.z;
 				return ret;
 			}
 			ENDCG
