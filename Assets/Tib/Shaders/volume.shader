@@ -259,22 +259,59 @@
 				return simpleLambert(n);
 			}
 
+			// fixed4 raymarch(float3 position, float3 direction)
+			// {
+			// 	// float alpha = 0;
+			// 	// fixed4 c;
+			// 	for (int i = 0; i < 64; i++)
+			// 	{
+			// 		float distance = map(position);
+			// 		if (distance < 0.0005) {
+			// 			// float s = softshadow(position, _Light.xyz, 0.02, 2.5);
+			// 			fixed4 c = renderSurface(position);
+			// 			// c *= alpha
+			// 			c.a = 1;
+			// 			return c;
+			// 		}
+			// 	}
+			// 	return fixed4(1,1,1,0);
+			// }
+
 			fixed4 raymarch(float3 position, float3 direction)
 			{
-				// float alpha = 0;
-				// fixed4 c;
-				for (int i = 0; i < 64; i++)
+				float3 col = float3(0.1, 0.1, 0.1);
+				// float3 ro = float3(0, 0, 0.1);
+				// float3 rd = position - ro;
+				float3 ro = position - _Offset;
+				float3 rd = direction;
+				rd = normalize(rd);
+
+				float3 rp = ro;
+				if (pow(dot(rd, ro - float3(0, 0, 0)), 2.0) - pow(length(ro - float3(0, 0, 0)), 2.0) + 1.0 > 0.0)
 				{
-					float distance = map(position);
-					if (distance < 0.0005) {
-						// float s = softshadow(position, _Light.xyz, 0.02, 2.5);
-						fixed4 c = renderSurface(position);
-						// c *= alpha
-						c.a = 1;
-						return c;
+					float d = - dot(rd, (ro - float3(0, 0, 0))) - sqrt(pow(dot(rd, ro - float3(0, 0, 0)), 2.0) - pow(length(ro - float3(0, 0, 0)), 2.0) + 1.0);
+					rp += rd * d;
+					float t = 0.05;
+					for(int i = 0; i< 64; i++)
+					{       
+						rp += rd * t;
+						// sadasdsa
+						float ds = length(rp) - 1.0;
+						if(ds > 0.0)
+							break;
+						col = lerp(col,
+									float3(abs(_SinTime.y),
+											1.5 * abs(ds),
+											abs(sin(_Time.y + 3.1415 * 0.5))),
+								(fbm(rp * 2.0) * 4.0 + 1.0) * abs(ds) * 0.1);
+
+        				// col = mix(col, 
+						// 	vec3(1.0*abs(sin(time)),1.5*abs(ds),1.0*abs(sin(time+PI*0.5))),
+						// 	(fbm(rp*2.0)*4.0+1.0)*abs(ds)*0.1);
+
 					}
 				}
-				return fixed4(1,1,1,0);
+				return fixed4(col,1.0);
 			}
 			
 			fixed4 frag (v2f i) : SV_Target
