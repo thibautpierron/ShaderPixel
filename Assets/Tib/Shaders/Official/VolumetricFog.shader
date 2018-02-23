@@ -1,4 +1,4 @@
-﻿Shader "PixelShader/Volume"
+﻿Shader "PixelShader/VolumetricFog"
 {
 	Properties
 	{
@@ -104,11 +104,6 @@
 				return d;
 			}
 
-			// float noise( float2 p ) {
-			// 	float h = dot(p, float2(127.1, 311.7));	
-			// 	return frac(sin(h) * 43758.5453123);
-			// }
-
 			float noise3D(float3 p) {
 				return frac(sin(dot(p ,float3(12.9898,78.233,128.852))) * 43758.5453)*2.0-1.0;
 			}
@@ -134,15 +129,15 @@
 				
 				if(x0>=y0)
 				{
-					if(y0>=z0){ i1=1; j1=0; k1=0; i2=1; j2=1; k2=0; } // X Y Z order
-					else if(x0>=z0){ i1=1; j1=0; k1=0; i2=1; j2=0; k2=1; } // X Z Y order
-					else { i1=0; j1=0; k1=1; i2=1; j2=0; k2=1; }  // Z X Z order
+					if(y0>=z0){ i1=1; j1=0; k1=0; i2=1; j2=1; k2=0; }
+					else if(x0>=z0){ i1=1; j1=0; k1=0; i2=1; j2=0; k2=1; }
+					else { i1=0; j1=0; k1=1; i2=1; j2=0; k2=1; } 
 				}
 				else 
 				{ 
-					if(y0<z0) { i1=0; j1=0; k1=1; i2=0; j2=1; k2=1; } // Z Y X order
-					else if(x0<z0) { i1=0; j1=1; k1=0; i2=0; j2=1; k2=1; } // Y Z X order
-					else { i1=0; j1=1; k1=0; i2=1; j2=1; k2=0; } // Y X Z order
+					if(y0<z0) { i1=0; j1=0; k1=1; i2=0; j2=1; k2=1; }
+					else if(x0<z0) { i1=0; j1=1; k1=0; i2=0; j2=1; k2=1; }
+					else { i1=0; j1=1; k1=0; i2=1; j2=1; k2=0; }
 				}
 				
 				float x1 = x0 - float(i1) + g3; 
@@ -200,89 +195,15 @@
 			float fbm(float3 p) {
 				float f;
 				f  = 0.50000*simplex3D( p ); p = p*2.01;
-				f += 0.25000*simplex3D( p ); p = p*2.02; //from iq
+				f += 0.25000*simplex3D( p ); p = p*2.02;
 				f += 0.12500*simplex3D( p ); p = p*2.03;
 				f += 0.06250*simplex3D( p ); p = p*2.04;
 				f += 0.03125*simplex3D( p );
 				return f;
 			}
 
-			float intersectSDF(float a, float b) {
-				return max(a, b);
-			}
-
-			float unionSDF(float a, float b) {
-				return min(a, b);
-			}
-
-			float differenceSDF(float a, float b) {
-				return max(a, -b);
-			}
-
-			float map (float3 p) {
-				// float a = sdf_sphere(p, + _Offset, 1.1);
-				float b = sdf_box(p, _Offset, float3(1.8, 1.8, 1.8));
-
-				return fbm(p);
-				// return b;
-				// return differenceSDF(b, a);
-			}
-
-			float3 normal(float3 p) {
-				const float eps = 0.01;
-				
-				return normalize( float3(
-							map(p + float3(eps, 0, 0) ) - map(p - float3(eps, 0, 0)),
-							map(p + float3(0, eps, 0) ) - map(p - float3(0, eps, 0)),
-							map(p + float3(0, 0, eps) ) - map(p - float3(0, 0, eps))
-						)
-					);
-			}
-
-			float softshadow( float3 ro, float3 rd, float mint, float maxt)
-			{
-				float res = 1.0;
-				float t = mint;
-				for (int i = 0; i < 16; i++)
-				{
-					float h = map(ro + rd * t);
-					res = min(res, 8.0 * h / t);
-					t += clamp(h, 0.02, 0.1);
-					if (h < 0.001 || t > maxt)
-						break;
-				}
-				return clamp(res, 0.0, 1.0);
-			}
-
-			fixed4 renderSurface(float3 p) {
-				float3 n = normal(p);
-				return simpleLambert(n);
-			}
-
-			// fixed4 raymarch(float3 position, float3 direction)
-			// {
-			// 	// float alpha = 0;
-			// 	// fixed4 c;
-			// 	for (int i = 0; i < 64; i++)
-			// 	{
-			// 		float distance = map(position);
-			// 		if (distance < 0.0005) {
-			// 			// float s = softshadow(position, _Light.xyz, 0.02, 2.5);
-			// 			fixed4 c = renderSurface(position);
-			// 			// c *= alpha
-			// 			c.a = 1;
-			// 			return c;
-			// 		}
-			// 	}
-			// 	return fixed4(1,1,1,0);
-			// }
-
-			fixed4 raymarch(float3 position, float3 direction)
-			{
-				float3 col = float3(0.1, 0.1, 0.1);
-				// float3 ro = float3(0, 0, 0.1);
-				// float3 rd = position - ro;
-				float3 ro = position - _Offset;
+			fixed4 raymarch(float3 position, float3 direction) {
+				float3 ro = position;
 				float3 rd = direction;
 				rd = normalize(rd);
 
@@ -292,34 +213,28 @@
 					float d = - dot(rd, (ro - float3(0, 0, 0))) - sqrt(pow(dot(rd, ro - float3(0, 0, 0)), 2.0) - pow(length(ro - float3(0, 0, 0)), 2.0) + 1.0);
 					rp += rd * d;
 					float t = 0.05;
-					for(int i = 0; i< 64; i++)
-					{       
+					float tmp = 0;
+					for(int i = 0; i < 64; i++)
+					{
 						rp += rd * t;
-						// sadasdsa
 						float ds = length(rp) - 1.0;
-						if(ds > 0.0)
-							break;
-						col = lerp(col,
-									float3(abs(_SinTime.y),
-											1.5 * abs(ds),
-											abs(sin(_Time.y + 3.1415 * 0.5))),
-								(fbm(rp * 2.0) * 4.0 + 1.0) * abs(ds) * 0.1);
-
-        				// col = mix(col, 
-						// 	vec3(1.0*abs(sin(time)),1.5*abs(ds),1.0*abs(sin(time+PI*0.5))),
-						// 	(fbm(rp*2.0)*4.0+1.0)*abs(ds)*0.1);
-
+						if(ds > 0.0) {
+							if (tmp < 0)
+								return fixed4(1, 0, 0, 0);
+							return fixed4(tmp, tmp, tmp, tmp);
+						}
+						tmp = lerp(tmp, 1, fbm(rp * 1.5).x );
 					}
 				}
-				return fixed4(col,1.0);
+				return fixed4(0, 0, 0, 0);
 			}
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
 				float3 worldPosition = i.wPos;
 				viewDirection = normalize(i.wPos - _WorldSpaceCameraPos);
-
-				return raymarch(worldPosition, viewDirection);
+				
+				return raymarch(worldPosition - _Offset, viewDirection);
 			}
 			ENDCG
 		}

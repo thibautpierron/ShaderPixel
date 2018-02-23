@@ -5,14 +5,12 @@ TO_DO:
 
     Un IFS.
 
-    Un autre objet translucide avec de la lumière et du fog volumétrique.
-
     Un shader 2D de votre choix utilisant un renderbuffer.
 
 
 IN_PROGRESS:
 
-
+    Un autre objet translucide avec de la lumière et du fog volumétrique.  DONE ????
 
 DONE:
     un shader 3D (ou 4D) de votre choix.

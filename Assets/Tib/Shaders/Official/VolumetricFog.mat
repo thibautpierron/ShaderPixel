@@ -6,8 +6,8 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: volume
-  m_Shader: {fileID: 4800000, guid: fecf9d181b1c14a77bb8ce3eeb83e023, type: 3}
+  m_Name: VolumetricFog
+  m_Shader: {fileID: 4800000, guid: 32bb93b7f31404a0a829c1fadd44082e, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
