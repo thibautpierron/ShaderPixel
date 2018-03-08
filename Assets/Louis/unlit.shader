@@ -29,13 +29,16 @@
 			#pragma fragment frag
 			
 			#define STEPS			64
-			#define STEP_SIZE		0.1
-			#define ITER_DETAIL		0.03
-			#define ITER_FRACTAL	8
+			#define STEP_SIZE		1.0
+			#define ITER_DETAIL		0.003
+			#define ITER_FRACTAL	7
 
-			#define fixedRadius2	(1.0 * 1.0)
-			#define minRadius2		(0.5 * 0.5)
-			#define foldingLimit	(1.0)
+			#define fixedRadius 	0.1
+			#define minRadius   	0.05
+			#define foldingLimit	(0.1)
+
+			#define fixedRadius2	(fixedRadius * fixedRadius)
+			#define minRadius2		(minRadius * minRadius)
 
 			#include "UnityCG.cginc"
 			#include "Lighting.cginc"
@@ -150,7 +153,7 @@
 
 			fixed4 renderSurface(float3 p) {
 				float3 n = normal(p);
-			//	float occ = calcAO(p, n);
+				float occ = calcAO(p, n);
 				return simpleLambert(n);
 			}
 			
@@ -174,16 +177,14 @@
 				float totalDist = 0.0;
 				for (int i = 0; i < STEPS; i++)
 				{
-//					position += totalDist * direction;
 					float3 p = position + totalDist * direction;
-					float dist = min(mandelbox(p), 1.0); // 3.0
+					float dist = min(mandelbox(p), 3.0); // 3.0
 					totalDist += dist;
 					if (dist < ITER_DETAIL)
 					{
-					//	float s = softshadow(position, _Light, 0.02, 2.5);
-						fixed4 c = renderSurface(p); // * s;
+						float s = softshadow(position, _Light, 0.02, 2.5);
+						fixed4 c = renderSurface(p) * s;
 						c.a = 1;
-					//	fixed4 c = fixed4(1, 1, 1, 1);
 						return c;
 					}
 				}
@@ -203,7 +204,7 @@
 				float3 worldPosition = i.wPos;
 				viewDirection = normalize(i.wPos - _WorldSpaceCameraPos);
 
-				return raymarch(worldPosition, viewDirection);
+				return raymarch(worldPosition - _Offset, viewDirection);
 			}
 			ENDCG
 		}
