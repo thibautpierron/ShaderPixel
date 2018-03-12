@@ -1,4 +1,4 @@
-﻿Shader "Unlit/unlit"
+﻿Shader "PixelShader/Mandelbox"
 {
 	Properties
 	{
@@ -68,6 +68,7 @@
 			float3 viewDirection;
 
 			float3 _Offset; //
+			float4x4 _Rotation; //
 			
 			void boxFold(inout float3 z, inout float dz)
 			{
@@ -108,7 +109,7 @@
 			}
 
 			float map (float3 p) {
-				return mandelbox(p);
+				return mandelbox(mul(_Rotation, p));
 			}
 
 			float calcAO( in float3 p, in float3 n ) {
@@ -154,7 +155,7 @@
 			fixed4 renderSurface(float3 p) {
 				float3 n = normal(p);
 				float occ = calcAO(p, n);
-				return simpleLambert(n);
+				return simpleLambert(n) * occ;
 			}
 			
 			float softshadow( float3 ro, float3 rd, float mint, float maxt)
@@ -178,7 +179,7 @@
 				for (int i = 0; i < STEPS; i++)
 				{
 					float3 p = position + totalDist * direction;
-					float dist = min(mandelbox(p), 3.0); // 3.0
+					float dist = min(map(p), 1.0); // 3.0
 					totalDist += dist;
 					if (dist < ITER_DETAIL)
 					{
