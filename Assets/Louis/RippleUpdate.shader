@@ -8,8 +8,8 @@
 
      SubShader
      {
-        //Lighting Off
-        //Blend One Zero
+        Lighting Off
+        Blend One Zero
 
         Pass
         {
@@ -28,7 +28,7 @@
 
             float4 frag(v2f_customrendertexture IN) : COLOR
             {
-                float2 uv = IN.localTexcoord.xy; // / float2(RES, RES);
+                float2 uv = IN.localTexcoord.xy;
 
                 float w = (H - (uv.x)) * (_ScreenParams.x / _ScreenParams.y);
                 float h = H - uv.y;
@@ -38,7 +38,6 @@
                 float slope = cos(sinArg);
 
                 return _Color * tex2D(_Tex, uv + normalize(float2(w, h)) * slope * 0.05);
-                //return _Color * tex2D(_Tex, IN.localTexcoord);;
             }
             ENDCG
         }
