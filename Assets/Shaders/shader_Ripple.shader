@@ -1,4 +1,4 @@
-﻿Shader "CustomRenderTexture/Simple"
+﻿Shader "PixelShader/Ripple"
 {
     Properties
     {
