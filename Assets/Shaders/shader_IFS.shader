@@ -3,7 +3,8 @@
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
-		_Offset ("Offset", Vector) = (0.0, 0.0, 0.0) //
+		_Offset ("Offset", Vector) = (0.0, 0.0, 0.0)
+		_Neg ("Neg", Int) = 0
 
 	}
 	SubShader
@@ -39,8 +40,9 @@
 			float4 _MainTex_ST;
 
 			float3 viewDirection;
-			float3 _Offset; //
-			float4x4 _Rotation; //
+			float3 _Offset;
+			float4x4 _Rotation;
+			int _Neg;
 			
 			#define MAX_ITERATION 40
 			#define DIAMETER 100.0
@@ -104,7 +106,9 @@
 				if (it == 0)
 					return fixed4(0, 0, 0, 0);
 				else {
-					float t = 1.0 - float(it) / float(MAX_ITERATION);
+					float t = float(it) / float(MAX_ITERATION);
+					if (_Neg == 0)
+						t = 1.0 - t;
 					return fixed4(t, t, t, 1.0);
 				}
 			}
